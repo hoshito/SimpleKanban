@@ -18,8 +18,10 @@ const columns = [
     { name: "完了", cards: [] },
 ];
 
+const KANBAN_DATA_KEY = "kanbanData";
+
 function loadData() {
-    const savedData = localStorage.getItem("kanbanData");
+    const savedData = Utils.loadFromLocalStorage(KANBAN_DATA_KEY);
     if (savedData) {
         const parsedData = JSON.parse(savedData);
         columns.forEach((column, index) => {
@@ -32,7 +34,7 @@ function loadData() {
 }
 
 function updateData() {
-    localStorage.setItem("kanbanData", JSON.stringify(columns));
+    Utils.saveToLocalStorage(KANBAN_DATA_KEY, JSON.stringify(columns));
 }
 
 function createCard(text, dueDate, assignee, color) {
@@ -295,7 +297,7 @@ function addNewCard() {
 }
 
 function deleteData() {
-    localStorage.removeItem("kanbanData");
+    Utils.deleteFromLocalStorage(KANBAN_DATA_KEY);
     location.reload(); // 画面をリロードして初期状態に戻す
 }
 
