@@ -13,4 +13,17 @@ var Utils = {
     deleteFromLocalStorage: function (key) {
         localStorage.removeItem(key);
     },
+
+    compareCards(a, b) {
+        if (a.assignee < b.assignee) {
+            return -1;
+        } else if (a.assignee > b.assignee) {
+            return 1;
+        } else {
+            const dueDateA = new Date(a.dueDate);
+            const dueDateB = new Date(b.dueDate);
+            return dueDateA - dueDateB;
+        }
+    },
+
 };

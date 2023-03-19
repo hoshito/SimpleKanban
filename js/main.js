@@ -1,40 +1,18 @@
-const assigneeColor = {
-    "担当者1": "#E57373",
-    "担当者2": "#F06292",
-    "担当者3": "#BA68C8",
-    "担当者4": "#9575CD",
-    "担当者5": "#7986CB",
-    "担当者6": "#64B5F6",
-    "担当者7": "#4FC3F7",
-    "担当者8": "#4DD0E1",
-    "担当者9": "#4DB6AC",
-    "担当者10": "#81C784",
-};
-
-const columns = [
-    { name: "未着手", cards: [] },
-    { name: "進行中", cards: [] },
-    { name: "レビュー", cards: [] },
-    { name: "完了", cards: [] },
-];
-
-const KANBAN_DATA_KEY = "kanbanData";
-
 function loadData() {
-    const savedData = Utils.loadFromLocalStorage(KANBAN_DATA_KEY);
+    const savedData = Utils.loadFromLocalStorage(Const.kanbanDataKey);
     if (savedData) {
         const parsedData = JSON.parse(savedData);
-        columns.forEach((column, index) => {
+        Const.columns.forEach((column, index) => {
             column.cards = parsedData[index].cards;
         });
-        return columns;
+        return Const.columns;
     } else {
-        return columns.map((column) => ({ ...column, cards: [] }));
+        return Const.columns.map((column) => ({ ...column, cards: [] }));
     }
 }
 
 function updateData() {
-    Utils.saveToLocalStorage(KANBAN_DATA_KEY, JSON.stringify(columns));
+    Utils.saveToLocalStorage(Const.kanbanDataKey, JSON.stringify(Const.columns));
 }
 
 function createCard(text, dueDate, assignee, color) {
@@ -46,28 +24,7 @@ function updateDueDateClass(card, dueDate) {
 }
 
 function createColumn(columnData) {
-    const column = document.createElement("div");
-    column.className = "column";
-    column.setAttribute("data-column-name", columnData.name);
-    column.innerHTML = `
-      <div class="column-header">${columnData.name}</div>
-      <div class="column-cards"></div>
-    `;
-
-    const columnCards = column.querySelector(".column-cards");
-    const sortedCards = columnData.cards.sort(compareCards); // ソートされたカードデータ
-
-    sortedCards.forEach((cardData) => {
-        const card = createCard(
-            cardData.text,
-            cardData.dueDate,
-            cardData.assignee,
-            assigneeColor[cardData.assignee]
-        );
-        columnCards.appendChild(card);
-    });
-
-    return column;
+    return Column.createColumn(columnData);
 }
 
 function renderBoard() {
@@ -98,7 +55,7 @@ function showEditDialog(card) {
     const cancelButton = document.getElementById("edit-cancel");
 
     function save() {
-        const columnIndex = columns.findIndex(
+        const columnIndex = Const.columns.findIndex(
             (column) => column.name === editColumn.value
         );
         const newColumn = document.querySelector(
@@ -115,7 +72,7 @@ function showEditDialog(card) {
         card.querySelector(".card-text").textContent = editText.value;
         card.querySelector(".card-due-date").textContent = editDueDate.value;
         card.querySelector(".card-assignee").textContent = editAssignee.value;
-        card.style.backgroundColor = assigneeColor[editAssignee.value];
+        card.style.backgroundColor = Const.assigneeColor[editAssignee.value];
 
         updateDueDateClass(card, editDueDate.value);
 
@@ -127,10 +84,10 @@ function showEditDialog(card) {
         editDialog.style.display = "none";
 
         const oldColumnName = oldColumn.getAttribute("data-column-name");
-        const oldColumnData = columns.find(
+        const oldColumnData = Const.columns.find(
             (column) => column.name === oldColumnName
         );
-        const newColumnData = columns[columnIndex];
+        const newColumnData = Const.columns[columnIndex];
         const cardData = {
             text: editText.value,
             dueDate: editDueDate.value,
@@ -146,7 +103,7 @@ function showEditDialog(card) {
     }
 
     function save() {
-        const columnIndex = columns.findIndex(
+        const columnIndex = Const.columns.findIndex(
             (column) => column.name === editColumn.value
         );
         const newColumn = document.querySelector(
@@ -163,7 +120,7 @@ function showEditDialog(card) {
         card.querySelector(".card-text").textContent = editText.value;
         card.querySelector(".card-due-date").textContent = editDueDate.value;
         card.querySelector(".card-assignee").textContent = editAssignee.value;
-        card.style.backgroundColor = assigneeColor[editAssignee.value];
+        card.style.backgroundColor = Const.assigneeColor[editAssignee.value];
 
         updateDueDateClass(card, editDueDate.value);
 
@@ -175,10 +132,10 @@ function showEditDialog(card) {
         editDialog.style.display = "none";
 
         const oldColumnName = oldColumn.getAttribute("data-column-name");
-        const oldColumnData = columns.find(
+        const oldColumnData = Const.columns.find(
             (column) => column.name === oldColumnName
         );
-        const newColumnData = columns[columnIndex];
+        const newColumnData = Const.columns[columnIndex];
         const cardData = {
             text: editText.value,
             dueDate: editDueDate.value,
@@ -209,7 +166,7 @@ function showEditDialog(card) {
         const oldColumn = card.closest(".column");
         const oldColumnCards = oldColumn.querySelector(".column-cards");
         const oldColumnName = oldColumn.getAttribute("data-column-name");
-        const oldColumnData = columns.find(
+        const oldColumnData = Const.columns.find(
             (column) => column.name === oldColumnName
         );
 
@@ -238,7 +195,7 @@ function addNewCard() {
     const newAssignee = document.getElementById("new-assignee");
     const newColumn = document.getElementById("new-column");
 
-    const columnIndex = columns.findIndex(
+    const columnIndex = Const.columns.findIndex(
         (column) => column.name === newColumn.value
     );
     const targetColumn = document.querySelector(
@@ -250,12 +207,12 @@ function addNewCard() {
         newText.value,
         newDueDate.value,
         newAssignee.value,
-        assigneeColor[newAssignee.value]
+        Const.assigneeColor[newAssignee.value]
     );
 
     columnCards.appendChild(card);
 
-    const columnData = columns[columnIndex];
+    const columnData = Const.columns[columnIndex];
     const cardData = {
         text: newText.value,
         dueDate: newDueDate.value,
@@ -273,7 +230,7 @@ function addNewCard() {
 }
 
 function deleteData() {
-    Utils.deleteFromLocalStorage(KANBAN_DATA_KEY);
+    Utils.deleteFromLocalStorage(Const.kanbanDataKey);
     location.reload(); // 画面をリロードして初期状態に戻す
 }
 
@@ -317,7 +274,7 @@ function generateCalendar(offsetMonth = 0, targetCalendar) {
 function plotDeadlines() {
     const deadlines = {};
 
-    columns.forEach((column) => {
+    Const.columns.forEach((column) => {
         column.cards.forEach((card) => {
             const dueDate = card.dueDate;
             if (deadlines[dueDate]) {
@@ -340,26 +297,14 @@ function plotDeadlines() {
         }
     });
 }
-function compareCards(a, b) {
-    if (a.assignee < b.assignee) {
-        return -1;
-    } else if (a.assignee > b.assignee) {
-        return 1;
-    } else {
-        const dueDateA = new Date(a.dueDate);
-        const dueDateB = new Date(b.dueDate);
-        return dueDateA - dueDateB;
-    }
-}
-
 function init() {
-    const assigneeOptions = Object.keys(assigneeColor);
+    const assigneeOptions = Object.keys(Const.assigneeColor);
     const editAssigneeSelect = document.getElementById("edit-assignee");
     const newAssigneeSelect = document.getElementById("new-assignee");
     populateSelect(editAssigneeSelect, assigneeOptions);
     populateSelect(newAssigneeSelect, assigneeOptions);
 
-    const columnOptions = columns.map((column) => column.name);
+    const columnOptions = Const.columns.map((column) => column.name);
     const editColumnSelect = document.getElementById("edit-column");
     const newColumnSelect = document.getElementById("new-column");
     populateSelect(editColumnSelect, columnOptions);
