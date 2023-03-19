@@ -37,7 +37,7 @@ var Calendar = {
     
     plotDeadlines: function() {
         const deadlines = {};
-    
+
         Const.columns.forEach((column) => {
             column.cards.forEach((card) => {
                 const dueDate = card.dueDate;
