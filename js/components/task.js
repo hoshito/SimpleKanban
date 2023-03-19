@@ -53,55 +53,15 @@ var Task = {
         editDialog.style.display = "block";
 
         const saveButton = document.getElementById("edit-save");
+        saveButton.removeEventListener("click", save);
+        saveButton.addEventListener("click", save);
+
         const cancelButton = document.getElementById("edit-cancel");
+        cancelButton.removeEventListener("click", cancel);
+        cancelButton.addEventListener("click", cancel);
 
-        function save() {
-            const columnIndex = Const.columns.findIndex(
-                (column) => column.name === editColumn.value
-            );
-            const newColumn = document.querySelector(
-                `[data-column-name="${editColumn.value}"]`
-            );
-            const newColumnCards = newColumn.querySelector(".column-cards");
-
-            const oldColumn = card.closest(".column");
-            const oldColumnCards = oldColumn.querySelector(".column-cards");
-
-            const oldCardText = card.querySelector(".card-text").textContent;
-            const oldCardAssignee = card.querySelector(".card-assignee").textContent;
-
-            card.querySelector(".card-text").textContent = editText.value;
-            card.querySelector(".card-due-date").textContent = editDueDate.value;
-            card.querySelector(".card-assignee").textContent = editAssignee.value;
-            card.style.backgroundColor = Const.assigneeColor[editAssignee.value];
-
-            Task.updateDueDateClass(card, editDueDate.value);
-
-            if (oldColumn !== newColumn) {
-                oldColumnCards.removeChild(card);
-                newColumnCards.appendChild(card);
-            }
-
-            editDialog.style.display = "none";
-
-            const oldColumnName = oldColumn.getAttribute("data-column-name");
-            const oldColumnData = Const.columns.find(
-                (column) => column.name === oldColumnName
-            );
-            const newColumnData = Const.columns[columnIndex];
-            const cardData = {
-                text: editText.value,
-                dueDate: editDueDate.value,
-                assignee: editAssignee.value,
-            };
-
-            oldColumnData.cards = oldColumnData.cards.filter(
-                (c) => c.text !== oldCardText || c.assignee !== oldCardAssignee
-            );
-            newColumnData.cards.push(cardData);
-
-            updateData();
-        }
+        const deleteButton = document.getElementById("edit-delete");
+        deleteButton.addEventListener("click", del);
 
         function save() {
             const columnIndex = Const.columns.findIndex(
@@ -156,14 +116,7 @@ var Task = {
             editDialog.style.display = "none";
         }
 
-        saveButton.removeEventListener("click", save);
-        cancelButton.removeEventListener("click", cancel);
-
-        saveButton.addEventListener("click", save);
-        cancelButton.addEventListener("click", cancel);
-
-        const deleteButton = document.getElementById("edit-delete");
-        deleteButton.onclick = () => {
+        function del() {
             const oldColumn = card.closest(".column");
             const oldColumnCards = oldColumn.querySelector(".column-cards");
             const oldColumnName = oldColumn.getAttribute("data-column-name");
@@ -178,6 +131,7 @@ var Task = {
 
             editDialog.style.display = "none";
             updateData();
-        };
+            loadData();
+        }
     },
 };
