@@ -15,24 +15,12 @@ function updateData() {
     Utils.saveToLocalStorage(Const.kanbanDataKey, JSON.stringify(Const.columns));
 }
 
-function createCard(text, dueDate, assignee, color) {
-    return Task.createTask(text, dueDate, assignee, color);
-}
-
-function updateDueDateClass(card, dueDate) {
-    Task.updateDueDateClass(card, dueDate);
-}
-
-function createColumn(columnData) {
-    return Column.createColumn(columnData);
-}
-
 function renderBoard() {
     const board = document.getElementById("board");
     const savedColumns = loadData();
 
     savedColumns.forEach((columnData) => {
-        const column = createColumn(columnData);
+        const column = Column.createColumn(columnData);
         board.appendChild(column);
     });
 }
@@ -74,7 +62,7 @@ function showEditDialog(card) {
         card.querySelector(".card-assignee").textContent = editAssignee.value;
         card.style.backgroundColor = Const.assigneeColor[editAssignee.value];
 
-        updateDueDateClass(card, editDueDate.value);
+        Task.updateDueDateClass(card, editDueDate.value);
 
         if (oldColumn !== newColumn) {
             oldColumnCards.removeChild(card);
@@ -122,7 +110,7 @@ function showEditDialog(card) {
         card.querySelector(".card-assignee").textContent = editAssignee.value;
         card.style.backgroundColor = Const.assigneeColor[editAssignee.value];
 
-        updateDueDateClass(card, editDueDate.value);
+        Task.updateDueDateClass(card, editDueDate.value);
 
         if (oldColumn !== newColumn) {
             oldColumnCards.removeChild(card);
@@ -203,12 +191,13 @@ function addNewCard() {
     );
     const columnCards = targetColumn.querySelector(".column-cards");
 
-    const card = createCard(
+    const card = Task.createCard(
         newText.value,
         newDueDate.value,
         newAssignee.value,
         Const.assigneeColor[newAssignee.value]
     );
+    alert();
 
     columnCards.appendChild(card);
 

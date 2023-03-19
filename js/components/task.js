@@ -1,5 +1,5 @@
 var Task = {
-    createTask: function (text, dueDate, assignee, color) {
+    createCard: function (text, dueDate, assignee, color) {
         const card = document.createElement("div");
         card.className = "card";
         card.innerHTML = `
@@ -9,7 +9,7 @@ var Task = {
     `;
         card.style.backgroundColor = color;
 
-        updateDueDateClass(card, dueDate);
+        Task.updateDueDateClass(card, dueDate);
 
         card.addEventListener("dblclick", () => {
             showEditDialog(card);
