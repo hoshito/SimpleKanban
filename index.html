@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>カンバンアプリ</title>
+  <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+  <div class="add-card">
+    <label for="new-text">テキスト:</label>
+    <input type="text" id="new-text" />
+    <label for="new-due-date">期限日:</label>
+    <input type="date" id="new-due-date" />
+    <label for="new-assignee">担当者:</label>
+    <select id="new-assignee"></select>
+    <label for="new-column">列:</label>
+    <select id="new-column"></select>
+    <button id="add-card-button">カードを追加</button>
+  </div>
+
+  <div id="board" class="board"></div>
+
+  <div id="edit-dialog" class="edit-dialog">
+    <div class="edit-dialog-inner">
+      <h3>カードを編集</h3>
+      <label for="edit-text">
+
+        テキスト:</label>
+      <input type="text" id="edit-text" />
+      <br />
+      <label for="edit-due-date">期限日:</label>
+      <input type="date" id="edit-due-date" />
+      <br />
+      <label for="edit-assignee">担当者:</label>
+      <select id="edit-assignee"></select>
+      <br />
+      <label for="edit-column">列:</label>
+      <select id="edit-column"></select>
+      <br />
+      <button id="edit-save">保存</button>
+      <button id="edit-cancel">キャンセル</button>
+      <button id="edit-delete">削除</button>
+    </div>
+
+  </div>
+  <div id="calendar-wrapper">
+    <div id="calendar1" class="calendar"></div>
+    <div id="calendar2" class="calendar"></div>
+  </div>
+
+  <button id="delete-data">データ削除</button>
+
+  <script src="app.js"></script>
+</body>
+</html>
