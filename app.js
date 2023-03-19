@@ -131,54 +131,6 @@ function showEditDialog(card) {
         const oldColumn = card.closest(".column");
         const oldColumnCards = oldColumn.querySelector(".column-cards");
 
-        const oldCardText = card.querySelector(".card-text").textContent;
-        const oldCardAssignee = card.querySelector(".card-assignee").textContent;
-
-        card.querySelector(".card-text").textContent = editText.value;
-        card.querySelector(".card-due-date").textContent = editDueDate.value;
-        card.querySelector(".card-assignee").textContent = editAssignee.value;
-        card.style.backgroundColor = assigneeColor[editAssignee.value];
-
-        updateDueDateClass(card, editDueDate.value);
-
-        if (oldColumn !== newColumn) {
-            oldColumnCards.removeChild(card);
-            newColumnCards.appendChild(card);
-        }
-
-        editDialog.style.display = "none";
-
-        const oldColumnName = oldColumn.getAttribute("data-column-name");
-        const oldColumnData = columns.find(
-            (column) => column.name === oldColumnName
-        );
-        const newColumnData = columns[columnIndex];
-        const cardData = {
-            text: editText.value,
-            dueDate: editDueDate.value,
-            assignee: editAssignee.value,
-        };
-
-        oldColumnData.cards = oldColumnData.cards.filter(
-            (c) => c.text !== oldCardText || c.assignee !== oldCardAssignee
-        );
-        newColumnData.cards.push(cardData);
-
-        updateData();
-    }
-
-    function save() {
-        const columnIndex = columns.findIndex(
-            (column) => column.name === editColumn.value
-        );
-        const newColumn = document.querySelector(
-            `[data-column-name="${editColumn.value}"]`
-        );
-        const newColumnCards = newColumn.querySelector(".column-cards");
-
-        const oldColumn = card.closest(".column");
-        const oldColumnCards = oldColumn.querySelector(".column-cards");
-
         const oldText = card.querySelector(".card-text").textContent;
         const oldAssignee = card.querySelector(".card-assignee").textContent;
 
