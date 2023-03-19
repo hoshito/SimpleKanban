@@ -216,17 +216,17 @@
       localStorage.setItem("kanbanData", JSON.stringify(columns));
     }
 
-    function createCard(text, dueDate, assignee, color) {
+    function createCardElement(cardData) {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-      <div class="card-text">${text}</div>
-      <div class="card-due-date">${dueDate}</div>
-      <div class="card-assignee">${assignee}</div>
-    `;
-      card.style.backgroundColor = color;
+        <div class="card-text">${cardData.text}</div>
+        <div class="card-due-date">${cardData.dueDate}</div>
+        <div class="card-assignee">${cardData.assignee}</div>
+      `;
+      card.style.backgroundColor = assigneeColor[cardData.assignee];
 
-      updateDueDateClass(card, dueDate);
+      updateDueDateClass(card, cardData.dueDate);
 
       card.addEventListener("dblclick", () => {
         showEditDialog(card);
@@ -261,12 +261,7 @@
       const sortedCards = columnData.cards.sort(compareCards); // ソートされたカードデータ
 
       sortedCards.forEach((cardData) => {
-        const card = createCard(
-          cardData.text,
-          cardData.dueDate,
-          cardData.assignee,
-          assigneeColor[cardData.assignee]
-        );
+        const card = createCardElement(cardData);
         columnCards.appendChild(card);
       });
 
@@ -401,21 +396,16 @@
       );
       const columnCards = targetColumn.querySelector(".column-cards");
 
-      const card = createCard(
-        newText.value,
-        newDueDate.value,
-        newAssignee.value,
-        assigneeColor[newAssignee.value]
-      );
-
-      columnCards.appendChild(card);
-
-      const columnData = columns[columnIndex];
       const cardData = {
         text: newText.value,
         dueDate: newDueDate.value,
         assignee: newAssignee.value,
       };
+
+      const card = createCardElement(cardData);
+      columnCards.appendChild(card);
+
+      const columnData = columns[columnIndex];
       columnData.cards.push(cardData);
 
       updateData();
