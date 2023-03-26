@@ -10,6 +10,12 @@
       font-family: Arial, sans-serif;
     }
 
+    #delete-data {
+      position: absolute;
+      right: 0px;
+      bottom: 5px;
+    }
+
     .board {
       display: flex;
       overflow-x: auto;
@@ -53,7 +59,7 @@
 
     .card-due-soon {
       font-weight: bold;
-      color: red;
+      color: white;
     }
 
     .edit-dialog {
@@ -93,9 +99,18 @@
       margin-top: 20px;
     }
 
+    .calendar-title {
+      width: 100%;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      font-weight: bold;
+      text-align: center;
+    }
+
     .calendar-day {
       flex: 0 0 calc(100% / 7);
       text-align: center;
+      vertical-align: top;
       padding: 5px;
       border: 1px solid #ddd;
     }
@@ -148,6 +163,7 @@
     <label for="new-column">列:</label>
     <select id="new-column"></select>
     <button id="add-card-button">カードを追加</button>
+    <button id="delete-data">データ削除</button>
   </div>
 
   <div id="board" class="board"></div>
@@ -179,8 +195,6 @@
     <div id="calendar1" class="calendar"></div>
     <div id="calendar2" class="calendar"></div>
   </div>
-
-  <button id="delete-data">データ削除</button>
 
   <script>
     const STORAGE_KEY = "kanbanData";
@@ -345,7 +359,7 @@
         const cardId = card.querySelector(".card-id").textContent;
         const cardData = {
           id: cardId,
-          text: editText.value,
+          text: editText.value || "タスク",
           dueDate: editDueDate.value,
           assignee: editAssignee.value,
         };
@@ -357,6 +371,8 @@
 
         updateData();
         loadData();
+        removeDeadlines();
+        plotDeadlines();
       }
 
       function cancel() {
@@ -368,6 +384,9 @@
 
       const deleteButton = document.getElementById("edit-delete");
       deleteButton.onclick = () => {
+        if (!confirm("削除します")) {
+          return;
+        }
         const oldColumn = card.closest(".column");
         const oldColumnCards = oldColumn.querySelector(".column-cards");
         const oldColumnName = oldColumn.getAttribute("data-column-name");
@@ -383,6 +402,9 @@
 
         editDialog.style.display = "none";
         updateData();
+        loadData();
+        removeDeadlines();
+        plotDeadlines();
       };
     }
 
@@ -411,7 +433,7 @@
 
       const cardData = {
         id: String(new Date().getTime()),
-        text: newText.value,
+        text: newText.value || "タスク",
         dueDate: newDueDate.value,
         assignee: newAssignee.value,
       };
@@ -424,9 +446,14 @@
 
       updateData();
       loadData();
+      removeDeadlines();
+      plotDeadlines();
     }
 
     function deleteData() {
+      if (!confirm("削除します")) {
+        return;
+      }
       localStorage.removeItem(STORAGE_KEY);
       location.reload(); // 画面をリロードして初期状態に戻す
     }
@@ -441,7 +468,8 @@
       const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
       const daysInMonth = lastDayOfMonth.getDate();
 
-      let calendarHtml = '<table>';
+      let calendarHtml = `<div class='calendar-title'>${currentMonth + 1}月</div>`;
+      calendarHtml += '<table>';
       calendarHtml += '<tr><th>月</th><th>火</th><th>水</th><th>木</th><th>金</th><th>土</th><th>日</th></tr>';
 
       let dayOfWeek = firstDayOfMonth.getDay() === 0 ? 6 : firstDayOfMonth.getDay() - 1; // 月曜始まりにするために調整
@@ -468,6 +496,13 @@
 
     }
 
+    function removeDeadlines() {
+      const elements = document.getElementsByClassName('calendar-event')
+      while (elements.length) {
+        elements.item(0).remove()
+      }
+    }
+
     function plotDeadlines() {
       const deadlines = {};
 
@@ -489,6 +524,7 @@
             const eventElement = document.createElement("div");
             eventElement.className = "calendar-event";
             eventElement.textContent = card.text;
+            eventElement.style.backgroundColor = assigneeColor[card.assignee];
             dayElement.appendChild(eventElement);
           });
         }
@@ -504,6 +540,15 @@
         const dueDateB = new Date(b.dueDate);
         return dueDateA - dueDateB;
       }
+    }
+
+    function setTodayDueDate() {
+      const today = new Date();
+      document.getElementById("new-due-date").value = [
+        today.getFullYear(),
+        ("0" + (today.getMonth() + 1)).slice(-2),
+        ("0" + today.getDate()).slice(-2)
+      ].join('-');
     }
 
     function init() {
@@ -525,6 +570,7 @@
       const deleteButton = document.getElementById("delete-data");
       deleteButton.addEventListener("click", deleteData);
 
+      setTodayDueDate();
       renderBoard();
       generateCalendar(0, "calendar1");
       generateCalendar(1, "calendar2");
