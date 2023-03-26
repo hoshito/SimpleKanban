@@ -43,6 +43,10 @@
       margin-bottom: 10px;
     }
 
+    .card-id {
+      display: none;
+    }
+
     .card-text {
       margin-bottom: 10px;
     }
@@ -179,6 +183,8 @@
   <button id="delete-data">データ削除</button>
 
   <script>
+    const STORAGE_KEY = "kanbanData";
+
     const assigneeColor = {
       "担当者1": "#E57373",
       "担当者2": "#F06292",
@@ -200,7 +206,7 @@
     ];
 
     function loadData() {
-      const savedData = localStorage.getItem("kanbanData");
+      const savedData = localStorage.getItem(STORAGE_KEY);
       if (savedData) {
         const parsedData = JSON.parse(savedData);
         columns.forEach((column, index) => {
@@ -213,21 +219,24 @@
     }
 
     function updateData() {
-      localStorage.setItem("kanbanData", JSON.stringify(columns));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(columns));
     }
 
     function createCardElement(cardData) {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
+        <div class="card-id">${cardData.id}</div>
         <div class="card-text">${cardData.text}</div>
         <div class="card-due-date">${cardData.dueDate}</div>
         <div class="card-assignee">${cardData.assignee}</div>
       `;
-      card.style.backgroundColor = assigneeColor[cardData.assignee];
 
+      // スタイルの調整
+      card.style.backgroundColor = assigneeColor[cardData.assignee];
       updateDueDateClass(card, cardData.dueDate);
 
+      // イベントの設定
       card.addEventListener("dblclick", () => {
         showEditDialog(card);
       });
@@ -237,15 +246,19 @@
 
     function updateDueDateClass(card, dueDate) {
       const cardDueDateElement = card.querySelector(".card-due-date");
-      const today = new Date();
-      const oneDay = 24 * 60 * 60 * 1000;
-      const dueDateObject = new Date(dueDate);
-
-      if (dueDateObject - today <= oneDay) {
+      if (isDueSoon(dueDate)) {
         cardDueDateElement.classList.add("card-due-soon");
       } else {
         cardDueDateElement.classList.remove("card-due-soon");
       }
+    }
+
+    function isDueSoon(date) {
+      const dateObject = new Date(date);
+      const today = new Date();
+      const oneDay = 24 * 60 * 60 * 1000;
+      const dueDateObject = new Date(date);
+      return dueDateObject - today <= oneDay;
     }
 
     function createColumn(columnData) {
@@ -258,7 +271,7 @@
     `;
 
       const columnCards = column.querySelector(".column-cards");
-      const sortedCards = columnData.cards.sort(compareCards); // ソートされたカードデータ
+      const sortedCards = columnData.cards.sort(compareCards);
 
       sortedCards.forEach((cardData) => {
         const card = createCardElement(cardData);
@@ -329,14 +342,16 @@
           (column) => column.name === oldColumnName
         );
         const newColumnData = columns[columnIndex];
+        const cardId = card.querySelector(".card-id").textContent;
         const cardData = {
+          id: cardId,
           text: editText.value,
           dueDate: editDueDate.value,
           assignee: editAssignee.value,
         };
 
         oldColumnData.cards = oldColumnData.cards.filter(
-          (c) => c.text !== oldText || c.assignee !== oldAssignee
+          (c) => c.id !== cardId
         );
         newColumnData.cards.push(cardData);
 
@@ -348,11 +363,8 @@
         editDialog.style.display = "none";
       }
 
-      saveButton.removeEventListener("click", save);
-      cancelButton.removeEventListener("click", cancel);
-
-      saveButton.addEventListener("click", save);
-      cancelButton.addEventListener("click", cancel);
+      saveButton.addEventListener("click", save, { once: true });
+      cancelButton.addEventListener("click", cancel, { once: true });
 
       const deleteButton = document.getElementById("edit-delete");
       deleteButton.onclick = () => {
@@ -364,8 +376,9 @@
         );
 
         oldColumnCards.removeChild(card);
+        const cardId = card.querySelector(".card-id").textContent;
         oldColumnData.cards = oldColumnData.cards.filter(
-          (c) => c.text !== editText.value
+          (c) => c.id !== cardId
         );
 
         editDialog.style.display = "none";
@@ -397,6 +410,7 @@
       const columnCards = targetColumn.querySelector(".column-cards");
 
       const cardData = {
+        id: String(new Date().getTime()),
         text: newText.value,
         dueDate: newDueDate.value,
         assignee: newAssignee.value,
@@ -410,15 +424,10 @@
 
       updateData();
       loadData();
-
-      newText.value = "";
-      newDueDate.value = "";
-      newAssignee.value = assigneeOptions[0];
-      newColumn.value = columnOptions[0];
     }
 
     function deleteData() {
-      localStorage.removeItem("kanbanData");
+      localStorage.removeItem(STORAGE_KEY);
       location.reload(); // 画面をリロードして初期状態に戻す
     }
 
